@@ -1,0 +1,54 @@
+# Configuration for reproducing the figures and tables in
+# "Koopman Analysis of Resilience in Dutch Marines Undergoing Intensive Military
+# Training" (submitted to Psychological Methods) and its supplement.
+#
+# Point paths.data_root at the folder of HR CSVs, then run scripts/ (see README).
+#
+# NOTE ON THE BASELINE EMBEDDING DIMENSION:
+#   The reported headline metrics (Table 1, Table 2, abstract:
+#   Precision 1.00, Recall 0.71, F1 0.83) correspond to embedding dimension
+#   d = 200 (the top row of the Table 3 sweep). Some figure/table captions in
+#   the manuscript state d = 300 and threshold 0.0075; those are typographical
+#   errors (the reported numbers are d = 200, threshold 0.00075). This config
+#   uses d = 200 so the scripts reproduce the reported numbers exactly.
+
+paths:
+  data_root: /Users/coleson/Desktop/Data for Python Program
+  hr_template: "{id}. HR-Table 1.csv"
+  eig_subject_id: 22        # subject featured in Figure 1 / S1 / 2
+  figures_dir: figures      # all outputs land in manuscript_repository/figures/
+
+dmd:
+  dt: 144                 # sampling interval (seconds)
+  embed_dim: 200          # Hankel embedding dimension d (baseline; see note above)
+  window_length: 900      # sliding-window length (samples ~ 36 h)
+  window_step: 36          # window stride (4% of window)
+  slow_thresh: 0.00075    # slow/fast |omega| threshold (baseline)
+  slow_cluster_count: 1
+  slow_thresh_clamp: [1, 1]
+  gauss_factor: 8
+  re_cap: 0.2
+  abs_lambda_cap: 1.05
+
+clustering:
+  excluded_files: [7, 10, 13]                 # device timing / opt-out issues
+  dropout_ids: [1, 2, 4, 6, 15, 16, 23]        # 7 ground-truth dropouts of 20
+  subject_count: 23
+  max_workers: 6
+  dbscan_eps: 0.75
+  dbscan_min_samples: 6
+
+# 80-day time-frame variant (Figure 4, and right panel of Figure S3)
+timeframe:
+  short_days: 80
+
+# Parameter sweep grid behind Table 3 (DBSCAN) and Table S2 (KMeans).
+# One-at-a-time around the sweep baseline (900, 36, 300, 0.00075) = 22 permutations.
+# NOTE: the sweep baseline embedding is 300 (matching the manuscript sweep); the
+# best-F1 row is d=200, which is the headline configuration used elsewhere.
+sensitivity:
+  baseline: [900, 36, 300, "0.00075"]
+  window_lengths: [600, 900, 1200, 1800, 4200]
+  steps: [18, 36, 72, 144, 225]
+  dims: [150, 175, 200, 225, 250, 275, 300, 350, 400]
+  threshes: ["0.00035", "0.0005", "0.00075", "0.001", "0.002", "0.003"]
