@@ -46,6 +46,46 @@ pip install -r requirements.txt
 Edit `config/default.yaml` so `paths.data_root` points at the heart-rate CSVs
 (`paths.hr_template` matches their filename pattern).
 
+## File paths & data layout
+
+All paths flow from `config/default.yaml`, loaded once via `marines.load_config()`
+([marines/\_\_init\_\_.py](marines/__init__.py)). Nothing is hardcoded in the
+scripts themselves.
+
+- **Repo root** — `marines.project_root()` resolves to the parent of the
+  `marines/` package (i.e. this folder), regardless of where scripts are run
+  from. `config/default.yaml`, `paths.figures_dir`, etc. are all resolved
+  relative to that root.
+- **`paths.data_root`** — absolute path to the folder holding the raw
+  per-subject heart-rate CSVs. These files live **outside** this repo (they're
+  not committed — may be restricted data) and this is the one setting almost
+  everyone needs to change first.
+- **`paths.hr_template`** — filename pattern for those CSVs, with `{id}`
+  substituted for the subject number, e.g. `"{id}. HR-Table 1.csv"` →
+  `12. HR-Table 1.csv`. Subject IDs are generated as
+  `range(1, clustering.subject_count + 1)`, minus `clustering.excluded_files`
+  (see [marines/dataio.py:\_read](marines/dataio.py) and the same loop
+  repeated in `compute_features.py`, `fig5_table4_hr_stats.py`, and
+  `tables3_S2_sensitivity.py`).
+- **Expected CSV format** — first two columns only (`usecols=[0, 1]`), read
+  positionally and renamed to `HR`, `Time` regardless of their actual header
+  text; the first row is treated as a header and skipped; non-numeric/blank
+  rows are dropped.
+- **`paths.figures_dir`** — where every output (PNGs and CSVs) is written,
+  relative to the repo root (default `figures/`). Created automatically by
+  `ensure_output_dirs()` if it doesn't exist; git-ignored.
+
+**Where to change things:**
+- Pointing at your own data → `paths.data_root` / `paths.hr_template` in
+  `config/default.yaml`.
+- Adding/removing subjects or changing which IDs are ground-truth dropouts →
+  `clustering.subject_count`, `clustering.excluded_files`,
+  `clustering.dropout_ids` in the same file.
+- Changing where outputs land → `paths.figures_dir`.
+- Everything else (DMD/window parameters, DBSCAN/KMeans settings, sweep grid)
+  also lives in `config/default.yaml` — scripts read it once at the top of
+  `main()` and take no other configuration input.
+
 ## Run
 
 ```bash

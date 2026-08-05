@@ -3,14 +3,6 @@
 # Training" (submitted to Psychological Methods) and its supplement.
 #
 # Point paths.data_root at the folder of HR CSVs, then run scripts/ (see README).
-#
-# NOTE ON THE BASELINE EMBEDDING DIMENSION:
-#   The reported headline metrics (Table 1, Table 2, abstract:
-#   Precision 1.00, Recall 0.71, F1 0.83) correspond to embedding dimension
-#   d = 200 (the top row of the Table 3 sweep). Some figure/table captions in
-#   the manuscript state d = 300 and threshold 0.0075; those are typographical
-#   errors (the reported numbers are d = 200, threshold 0.00075). This config
-#   uses d = 200 so the scripts reproduce the reported numbers exactly.
 
 paths:
   data_root: /Users/coleson/Desktop/Data for Python Program
